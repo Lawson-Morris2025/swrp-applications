@@ -1,0 +1,25 @@
+{
+  "name": "south-wales-rp-apps",
+  "version": "1.0.0",
+  "description": "Application bot with DM review system for South Wales Roleplay",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "south-wales-rp",
+    "applications",
+    "roleplay"
+  ],
+  "author": "",
+  "license": "ISC"
+}
