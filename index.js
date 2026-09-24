@@ -15,7 +15,7 @@ const {
     ButtonStyle 
 } = require('discord.js');
 
-// 1. Keep-Alive Server for Render Hosting
+// 1. Keep-Alive Server for Render
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -42,50 +42,151 @@ const commands = [
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
 // -------------------------------------------------------------
-// Pre-built Modals (Labels capped strictly <= 45 chars)
+// Simplified Pre-built Modals
 // -------------------------------------------------------------
 const ageCheckInput = new TextInputBuilder()
     .setCustomId('q1_age_check')
-    .setLabel('1. Confirm Age: Type YES if 13 or older') // 41 chars
+    .setLabel('Confirm you are 13 or older (Type Y)')
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder('YES')
+    .setPlaceholder('Y')
+    .setMaxLength(3)
     .setRequired(true);
 
 const modals = {
     tmod: new ModalBuilder().setCustomId('modal_app_tmod').setTitle('Trial Moderator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Will you remain active daily?').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Why join our staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle severe FailRP?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Any previous staff/mod experience?').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q2')
+                .setLabel('Why do you want to join our staff team?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Tell us briefly why you want to help out.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q3')
+                .setLabel('How active are you on Discord & server?')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('e.g., 2 hours a day / Active daily')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q4')
+                .setLabel('Any previous staff experience?')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('e.g., Mod in 1 server / None')
+                .setRequired(true)
+        )
     ),
     mod: new ModalBuilder().setCustomId('modal_app_mod').setTitle('Moderator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Weekly activity commitment (Hours/wk)').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How do you de-escalate a sit?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you stay unbiased?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Detailed staff history and skills').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q2')
+                .setLabel('Why do you want to be a Moderator?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Explain why you fit this role.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q3')
+                .setLabel('How do you handle rule breakers / FailRP?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Keep calm, warn them, call high staff if needed...')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q4')
+                .setLabel('Weekly activity (Hours/week)')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('e.g., 10-15 hours')
+                .setRequired(true)
+        )
     ),
     admin: new ModalBuilder().setCustomId('modal_app_admin').setTitle('Administrator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Can you dedicate 10+ hours weekly?').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Why qualified for Admin over Mod?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you deal with abusive staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. How would you plan or assist events?').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q2')
+                .setLabel('Why apply for Admin instead of Mod?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('What leadership qualities do you bring?')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q3')
+                .setLabel('How do you handle argument in staff sits?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('De-escalate calmly and stay fair.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q4')
+                .setLabel('Weekly activity commitment')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('e.g., 10+ hours per week')
+                .setRequired(true)
+        )
     ),
-    sradmin: new ModalBuilder().setCustomId('modal_app_sradmin').setTitle('Senior Administrator Application').addComponents(
+    sradmin: new ModalBuilder().setCustomId('modal_app_sradmin').setTitle('Senior Admin Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Confirm high daily activity (Yes/No)').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Previous leadership experience?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle server crises?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. What improvements would you make?').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q2')
+                .setLabel('Previous staff leadership experience?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('List roles or experience in other communities.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q3')
+                .setLabel('How will you support lower staff members?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Help guide them, handle escalations, etc.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q4')
+                .setLabel('Can you maintain high daily activity?')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Yes / No')
+                .setRequired(true)
+        )
     ),
     headstaff: new ModalBuilder().setCustomId('modal_app_headstaff').setTitle('Head of Staff Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Confirm high daily activity (Yes/No)').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How will you recruit & train staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How will you evaluate staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Vision for the staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q2')
+                .setLabel('What is your main goal for the staff team?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Briefly outline your vision.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q3')
+                .setLabel('How will you help train new staff?')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Explain your approach simply.')
+                .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('q4')
+                .setLabel('Can you maintain high daily activity?')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Yes / No')
+                .setRequired(true)
+        )
     )
 };
 
@@ -105,7 +206,7 @@ client.once('ready', async () => {
 client.on('interactionCreate', async (interaction) => {
 
     // -------------------------------------------------------------
-    // Execute /panel Command
+    // /panel Command Execution
     // -------------------------------------------------------------
     if (interaction.isChatInputCommand() && interaction.commandName === 'panel') {
         await interaction.deferReply({ ephemeral: true });
@@ -135,7 +236,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Direct Button Clicks -> Instant Modal Display
+    // Button Clicks -> Modals
     // -------------------------------------------------------------
     else if (interaction.isButton() && interaction.customId.startsWith('btn_app_')) {
         const role = interaction.customId.replace('btn_app_', '');
@@ -147,14 +248,15 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Modal Submissions
+    // Modal Submissions & DM Handling
     // -------------------------------------------------------------
     else if (interaction.isModalSubmit()) {
         const ageCheck = interaction.fields.getTextInputValue('q1_age_check').trim().toLowerCase();
 
-        if (ageCheck !== 'yes' && ageCheck !== 'y') {
+        // Accepts Y, YES, or a checkmark symbol
+        if (!['y', 'yes', '✓', 'check'].includes(ageCheck)) {
             return interaction.reply({ 
-                content: '❌ **Application Denied:** You must confirm that you are 13 years of age or older (by typing YES) to apply for staff at South Wales RP.',
+                content: '❌ **Application Denied:** You must confirm that you are 13 years of age or older (by typing Y) to apply for staff at South Wales RP.',
                 ephemeral: true 
             });
         }
@@ -168,12 +270,16 @@ client.on('interactionCreate', async (interaction) => {
         const fields = [
             { name: 'Applicant', value: `${interaction.user} (${interaction.user.tag})`, inline: true },
             { name: 'User ID', value: interaction.user.id, inline: true },
-            { name: '13+ Confirmed', value: '✅ YES', inline: true },
-            { name: 'Answer 2', value: interaction.fields.getTextInputValue('q2') },
-            { name: 'Answer 3', value: interaction.fields.getTextInputValue('q3') },
-            { name: 'Answer 4', value: interaction.fields.getTextInputValue('q4') },
-            { name: 'Answer 5', value: interaction.fields.getTextInputValue('q5') }
+            { name: '13+ Confirmed', value: '✅ YES', inline: true }
         ];
+
+        let i = 2;
+        interaction.fields.fields.forEach(field => {
+            if (field.customId !== 'q1_age_check') {
+                fields.push({ name: `Answer ${i}`, value: field.value || 'N/A' });
+                i++;
+            }
+        });
 
         if (interaction.customId === 'modal_app_tmod') staffRole = '🔰 Trial Moderator Application';
         else if (interaction.customId === 'modal_app_mod') staffRole = '🛡️ Moderator Application';
@@ -202,7 +308,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Accept / Decline Management Action Buttons
+    // Management Accept / Decline Actions
     // -------------------------------------------------------------
     else if (interaction.isButton() && (interaction.customId.startsWith('accept_') || interaction.customId.startsWith('decline_'))) {
         await interaction.deferReply({ ephemeral: true });
