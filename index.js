@@ -117,7 +117,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Direct Button Clicks -> Instantly Pops Up Modal
+    // Direct Button Clicks -> Instant Synchronous Modal Pop-up
     // -------------------------------------------------------------
     else if (interaction.isButton() && interaction.customId.startsWith('btn_app_')) {
         const role = interaction.customId.replace('btn_app_', '');
@@ -129,72 +129,78 @@ client.on('interactionCreate', async (interaction) => {
             .setPlaceholder('YES')
             .setRequired(true);
 
+        let modalTitle = '';
+        const modal = new ModalBuilder();
+
         if (role === 'tmod') {
-            const modal = new ModalBuilder().setCustomId('modal_app_tmod').setTitle('Trial Moderator Application');
-            modal.addComponents(
+            modalTitle = 'Trial Moderator Application';
+            modal.setCustomId('modal_app_tmod').setTitle(modalTitle).addComponents(
                 new ActionRowBuilder().addComponents(ageCheckInput),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Will you remain active daily?').setStyle(TextInputStyle.Short).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Why do you want to join our staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle severe FailRP?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Any previous staff/mod experience?').setStyle(TextInputStyle.Paragraph).setRequired(true))
             );
-            await interaction.showModal(modal);
         } else if (role === 'mod') {
-            const modal = new ModalBuilder().setCustomId('modal_app_mod').setTitle('Moderator Application');
-            modal.addComponents(
+            modalTitle = 'Moderator Application';
+            modal.setCustomId('modal_app_mod').setTitle(modalTitle).addComponents(
                 new ActionRowBuilder().addComponents(ageCheckInput),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Weekly activity commitment (Hours/week)').setStyle(TextInputStyle.Short).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How do you de-escalate a heated staff sit?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you stay unbiased with friends?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Detailed staff history and skills').setStyle(TextInputStyle.Paragraph).setRequired(true))
             );
-            await interaction.showModal(modal);
         } else if (role === 'admin') {
-            const modal = new ModalBuilder().setCustomId('modal_app_admin').setTitle('Administrator Application');
-            modal.addComponents(
+            modalTitle = 'Administrator Application';
+            modal.setCustomId('modal_app_admin').setTitle(modalTitle).addComponents(
                 new ActionRowBuilder().addComponents(ageCheckInput),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Can you dedicate 10+ hours weekly?').setStyle(TextInputStyle.Short).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. What makes you qualified for Admin over Mod?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you deal with abusive staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. How would you plan or assist RP events?').setStyle(TextInputStyle.Paragraph).setRequired(true))
             );
-            await interaction.showModal(modal);
         } else if (role === 'sradmin') {
-            const modal = new ModalBuilder().setCustomId('modal_app_sradmin').setTitle('Senior Administrator Application');
-            modal.addComponents(
+            modalTitle = 'Senior Administrator Application';
+            modal.setCustomId('modal_app_sradmin').setTitle(modalTitle).addComponents(
                 new ActionRowBuilder().addComponents(ageCheckInput),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Confirm high daily activity (Yes/No)').setStyle(TextInputStyle.Short).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Previous leadership/management experience?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle major server crises?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. What improvements would you make?').setStyle(TextInputStyle.Paragraph).setRequired(true))
             );
-            await interaction.showModal(modal);
         } else if (role === 'headstaff') {
-            const modal = new ModalBuilder().setCustomId('modal_app_headstaff').setTitle('Head of Staff Application');
-            modal.addComponents(
+            modalTitle = 'Head of Staff Application';
+            modal.setCustomId('modal_app_headstaff').setTitle(modalTitle).addComponents(
                 new ActionRowBuilder().addComponents(ageCheckInput),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Confirm high daily activity (Yes/No)').setStyle(TextInputStyle.Short).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How will you recruit & train staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How will you evaluate staff activity?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. What is your vision for the staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true))
             );
-            await interaction.showModal(modal);
         }
+
+        // Must be called synchronously within milliseconds
+        return interaction.showModal(modal).catch(err => console.error('Error opening modal:', err));
     }
 
     // -------------------------------------------------------------
-    // Modal Submissions -> Defer Reply to Prevent Timeouts & DM Owner
+    // Modal Submissions -> Fast Ephemeral Response + Async DM
     // -------------------------------------------------------------
     else if (interaction.isModalSubmit()) {
-        await interaction.deferReply({ ephemeral: true });
-
         const ageCheck = interaction.fields.getTextInputValue('q1_age_check').trim().toLowerCase();
 
         if (ageCheck !== 'yes' && ageCheck !== 'y') {
-            return interaction.editReply({ 
-                content: '❌ **Application Denied:** You must confirm that you are 13 years of age or older (by typing YES) to apply for staff at South Wales RP.' 
+            return interaction.reply({ 
+                content: '❌ **Application Denied:** You must confirm that you are 13 years of age or older (by typing YES) to apply for staff at South Wales RP.',
+                ephemeral: true 
             });
         }
+
+        // Instant response to user to prevent interaction timeout
+        await interaction.reply({ 
+            content: '✅ Your staff application has been submitted to management! You will receive a DM notification once reviewed.', 
+            ephemeral: true 
+        });
 
         let staffRole = '';
         const fields = [
@@ -225,13 +231,12 @@ client.on('interactionCreate', async (interaction) => {
             new ButtonBuilder().setCustomId(`decline_${interaction.user.id}`).setLabel('Decline').setStyle(ButtonStyle.Danger)
         );
 
+        // Perform owner fetch in background after acknowledging user
         try {
             const owner = await client.users.fetch(process.env.OWNER_ID);
             await owner.send({ embeds: [appEmbed], components: [reviewButtons] });
-            await interaction.editReply({ content: '✅ Your staff application has been submitted to management! You will receive a DM notification once reviewed.' });
         } catch (err) {
             console.error('Failed to DM owner:', err);
-            await interaction.editReply({ content: '⚠️ Failed to send application via DM. Please check that OWNER_ID is correct and DMs are enabled.' });
         }
     }
 
