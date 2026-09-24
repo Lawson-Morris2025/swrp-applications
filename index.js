@@ -16,21 +16,17 @@ const {
     ButtonStyle 
 } = require('discord.js');
 
-// -------------------------------------------------------------
 // 1. HTTP Server for Render Hosting Keep-Alive
-// -------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.write('South Wales RP Bot is operational.');
+    res.write('South Wales RP Application Bot Active.');
     res.end();
 }).listen(PORT, () => {
     console.log(`Render HTTP listener running on port ${PORT}`);
 });
 
-// -------------------------------------------------------------
-// 2. Discord Bot Initialization
-// -------------------------------------------------------------
+// 2. Initialize Discord Client
 const client = new Client({ 
     intents: [
         GatewayIntentBits.Guilds,
@@ -38,34 +34,34 @@ const client = new Client({
     ] 
 });
 
+// Slash command definition
 const commands = [
     new SlashCommandBuilder()
         .setName('panel')
         .setDescription('Post the South Wales RP application panel in this channel')
 ].map(cmd => cmd.toJSON());
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.process ? process.env.DISCORD_TOKEN : '');
 
+// Register slash commands globally when client is ready
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}`);
     try {
+        console.log('Registering global slash commands...');
         await rest.put(
-            Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+            Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands }
         );
-        console.log('Registered /panel command successfully.');
+        console.log('Successfully registered /panel globally across all guilds.');
     } catch (err) {
-        console.error('Failed to register commands:', err);
+        console.error('Failed to register global commands:', err);
     }
 });
-
-// Store active applications in memory (Applicant ID mapped to review message ID)
-const activeApplications = new Map();
 
 client.on('interactionCreate', async (interaction) => {
 
     // -------------------------------------------------------------
-    // /panel Command Execution
+    // Execute /panel Command
     // -------------------------------------------------------------
     if (interaction.isChatInputCommand() && interaction.commandName === 'panel') {
         const embed = new EmbedBuilder()
@@ -106,7 +102,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Dropdown Selection -> Application Modals
+    // Handle Application Menu Selection
     // -------------------------------------------------------------
     else if (interaction.isStringSelectMenu() && interaction.customId === 'app_select_menu') {
         const selected = interaction.values[0];
@@ -182,12 +178,12 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Application Modal Submission -> DM Owner
+    // Application Modal Submissions -> Forward to Owner DM
     // -------------------------------------------------------------
     else if (interaction.isModalSubmit()) {
         const ageInput = parseInt(interaction.fields.getTextInputValue('age'));
 
-        // Requirement Check: Age 13+
+        // Age Verification Check
         if (isNaN(ageInput) || ageInput < 13) {
             return interaction.reply({ 
                 content: '❌ **Application Rejected:** You must be 13 years of age or older to submit an application for South Wales RP.', 
@@ -229,7 +225,7 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle(`Review Required: ${appType}`)
             .setColor('#0099ff')
             .addFields(fields)
-            .setFooter({ text: 'South Wales RP • Owner Review System' })
+            .setFooter({ text: 'South Wales RP • Management Review System' })
             .setTimestamp();
 
         const reviewButtons = new ActionRowBuilder().addComponents(
@@ -247,20 +243,20 @@ client.on('interactionCreate', async (interaction) => {
             const owner = await client.users.fetch(process.env.OWNER_ID);
             await owner.send({ embeds: [appEmbed], components: [reviewButtons] });
             await interaction.reply({ 
-                content: '✅ Your application has been submitted directly to management! You will receive a direct message once a decision is made.', 
+                content: '✅ Your application has been submitted to management. You will receive a DM notification once reviewed.', 
                 ephemeral: true 
             });
         } catch (err) {
-            console.error('DM Dispatch Error:', err);
+            console.error('Owner DM Dispatch Error:', err);
             await interaction.reply({ 
-                content: '⚠️ Failed to send your application to the server owner via DM. Please check if the owner has DMs enabled.', 
+                content: '⚠️ Unable to forward your application to management. Please verify DMs are open.', 
                 ephemeral: true 
             });
         }
     }
 
     // -------------------------------------------------------------
-    // Owner Decision Buttons (Accept / Decline)
+    // Review Button Action Handler (Accept / Decline)
     // -------------------------------------------------------------
     else if (interaction.isButton()) {
         const [action, applicantId] = interaction.customId.split('_');
@@ -273,41 +269,39 @@ client.on('interactionCreate', async (interaction) => {
                 if (action === 'accept') {
                     originalEmbed.setColor('#00ff00').setTitle(`${originalEmbed.data.title} — [ACCEPTED]`);
                     
-                    // User Acceptance DM
                     await applicant.send({
                         embeds: [
                             new EmbedBuilder()
                                 .setTitle('🎉 Application Accepted — South Wales Roleplay')
-                                .setDescription(`Congratulations! Your recent application for **South Wales RP** has been **ACCEPTED**.\n\nPlease contact server management in the Discord server to complete your onboarding process.`)
+                                .setDescription(`Congratulations! Your application for **South Wales RP** has been **ACCEPTED**.\n\nPlease contact server management to complete onboarding.`)
                                 .setColor('#00ff00')
                                 .setTimestamp()
                         ]
                     });
 
                     await interaction.update({ embeds: [originalEmbed], components: [] });
-                    await interaction.followUp({ content: `✅ Application accepted. Notice delivered to <@${applicantId}>.`, ephemeral: true });
+                    await interaction.followUp({ content: `✅ Application accepted. Notice sent to <@${applicantId}>.`, ephemeral: true });
 
                 } else if (action === 'decline') {
                     originalEmbed.setColor('#ff0000').setTitle(`${originalEmbed.data.title} — [DECLINED]`);
 
-                    // User Rejection DM
                     await applicant.send({
                         embeds: [
                             new EmbedBuilder()
                                 .setTitle('Application Update — South Wales Roleplay')
-                                .setDescription(`Hello,\n\nThank you for applying to **South Wales RP**. Unfortunately, your application has not been accepted at this time.\n\nYou are welcome to re-apply in the future when recruitment re-opens.`)
+                                .setDescription(`Hello,\n\nThank you for applying to **South Wales RP**. Unfortunately, your application was not accepted at this time.\n\nYou are welcome to re-apply in the future when applications re-open.`)
                                 .setColor('#ff0000')
                                 .setTimestamp()
                         ]
                     });
 
                     await interaction.update({ embeds: [originalEmbed], components: [] });
-                    await interaction.followUp({ content: `❌ Application declined. Notice delivered to <@${applicantId}>.`, ephemeral: true });
+                    await interaction.followUp({ content: `❌ Application declined. Notice sent to <@${applicantId}>.`, ephemeral: true });
                 }
 
             } catch (err) {
-                console.error('Error handling decision:', err);
-                await interaction.reply({ content: '⚠️ Unable to message the applicant directly (User may have DMs closed). Status updated locally.', ephemeral: true });
+                console.error('Decision Notification Error:', err);
+                await interaction.reply({ content: '⚠️ Status updated, but unable to DM the applicant (User DMs may be closed).', ephemeral: true });
             }
         }
     }
