@@ -42,11 +42,11 @@ const commands = [
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
 // -------------------------------------------------------------
-// Pre-built Modals in Memory for Instant (<100ms) Responses
+// Pre-built Modals (Labels capped strictly <= 45 chars)
 // -------------------------------------------------------------
 const ageCheckInput = new TextInputBuilder()
     .setCustomId('q1_age_check')
-    .setLabel('1. Confirm Age: Type YES if you are 13 or older')
+    .setLabel('1. Confirm Age: Type YES if 13 or older') // 41 chars
     .setStyle(TextInputStyle.Short)
     .setPlaceholder('YES')
     .setRequired(true);
@@ -55,37 +55,37 @@ const modals = {
     tmod: new ModalBuilder().setCustomId('modal_app_tmod').setTitle('Trial Moderator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Will you remain active daily?').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Why do you want to join our staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Why join our staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle severe FailRP?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Any previous staff/mod experience?').setStyle(TextInputStyle.Paragraph).setRequired(true))
     ),
     mod: new ModalBuilder().setCustomId('modal_app_mod').setTitle('Moderator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Weekly activity commitment (Hours/week)').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How do you de-escalate a heated staff sit?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you stay unbiased with friends?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Weekly activity commitment (Hours/wk)').setStyle(TextInputStyle.Short).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How do you de-escalate a sit?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you stay unbiased?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Detailed staff history and skills').setStyle(TextInputStyle.Paragraph).setRequired(true))
     ),
     admin: new ModalBuilder().setCustomId('modal_app_admin').setTitle('Administrator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Can you dedicate 10+ hours weekly?').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. What makes you qualified for Admin over Mod?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Why qualified for Admin over Mod?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you deal with abusive staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. How would you plan or assist RP events?').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. How would you plan or assist events?').setStyle(TextInputStyle.Paragraph).setRequired(true))
     ),
     sradmin: new ModalBuilder().setCustomId('modal_app_sradmin').setTitle('Senior Administrator Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Confirm high daily activity (Yes/No)').setStyle(TextInputStyle.Short).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Previous leadership/management experience?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle major server crises?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. Previous leadership experience?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How do you handle server crises?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. What improvements would you make?').setStyle(TextInputStyle.Paragraph).setRequired(true))
     ),
     headstaff: new ModalBuilder().setCustomId('modal_app_headstaff').setTitle('Head of Staff Application').addComponents(
         new ActionRowBuilder().addComponents(ageCheckInput),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q2').setLabel('2. Confirm high daily activity (Yes/No)').setStyle(TextInputStyle.Short).setRequired(true)),
         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q3').setLabel('3. How will you recruit & train staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How will you evaluate staff activity?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. What is your vision for the staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q4').setLabel('4. How will you evaluate staff?').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('q5').setLabel('5. Vision for the staff team?').setStyle(TextInputStyle.Paragraph).setRequired(true))
     )
 };
 
@@ -105,7 +105,7 @@ client.once('ready', async () => {
 client.on('interactionCreate', async (interaction) => {
 
     // -------------------------------------------------------------
-    // Execute /panel Command — Sends Separate Square Panels
+    // Execute /panel Command
     // -------------------------------------------------------------
     if (interaction.isChatInputCommand() && interaction.commandName === 'panel') {
         await interaction.deferReply({ ephemeral: true });
@@ -135,7 +135,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Direct Button Clicks -> Served Instantly from Cache
+    // Direct Button Clicks -> Instant Modal Display
     // -------------------------------------------------------------
     else if (interaction.isButton() && interaction.customId.startsWith('btn_app_')) {
         const role = interaction.customId.replace('btn_app_', '');
@@ -147,7 +147,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // -------------------------------------------------------------
-    // Modal Submissions -> Instant Response + Asynchronous DM
+    // Modal Submissions
     // -------------------------------------------------------------
     else if (interaction.isModalSubmit()) {
         const ageCheck = interaction.fields.getTextInputValue('q1_age_check').trim().toLowerCase();
@@ -159,7 +159,6 @@ client.on('interactionCreate', async (interaction) => {
             });
         }
 
-        // Send instant response back to the user
         await interaction.reply({ 
             content: '⏳ Processing your application... Sent to management for review!', 
             ephemeral: true 
@@ -194,7 +193,6 @@ client.on('interactionCreate', async (interaction) => {
             new ButtonBuilder().setCustomId(`decline_${interaction.user.id}`).setLabel('Decline').setStyle(ButtonStyle.Danger)
         );
 
-        // Fetch owner and dispatch DM in the background
         try {
             const owner = await client.users.fetch(process.env.OWNER_ID);
             await owner.send({ embeds: [appEmbed], components: [reviewButtons] });
